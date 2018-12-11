@@ -78,4 +78,10 @@ func TestDevice(t *testing.T) {
     if checksum != expect {
         t.Errorf("Expected %d, got %d", expect, checksum)
     }
+    var expects = "fgij"
+    d = device{boxIds: []string{"abcde", "fghij", "klmno", "pqrst", "fguij", "axcye", "wvxyz"}}
+    var common = d.GetCommon()
+    if common != expects {
+        t.Errorf("Expected %s, got %s", expects, common)
+    }
 }
