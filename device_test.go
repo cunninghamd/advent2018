@@ -63,4 +63,19 @@ func TestDevice(t *testing.T) {
     if repeated != expect {
         t.Errorf("Expected %d, got %d", expect, repeated)
     }
+    
+    // abcdef contains no letters that appear exactly two or three times.
+    // bababc contains two a and three b, so it counts for both.
+    // abbcde contains two b, but no letter appears exactly three times.
+    // abcccd contains three c, but no letter appears exactly two times.
+    // aabcdd contains two a and two d, but it only counts once.
+    // abcdee contains two e.
+    // ababab contains three a and three b, but it only counts once.
+    // checksum of 4 * 3 = 12
+    expect = 12
+    d = device{boxIds: []string{"abcdef", "bababc", "abbcde", "abcccd", "aabcdd", "abcdee", "ababab"}}
+    var checksum = d.GetChecksum()
+    if checksum != expect {
+        t.Errorf("Expected %d, got %d", expect, checksum)
+    }
 }
