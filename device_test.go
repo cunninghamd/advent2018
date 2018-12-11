@@ -45,19 +45,19 @@ func TestDevice(t *testing.T) {
     if repeated != expect {
         t.Errorf("Expected %d, got %d", expect, repeated)
     }
-    expect = 0
+    expect = 10
     d = device{frequencies: []int{3, 3, 4, -2, -4}}
     repeated = d.CheckRepeats()
     if repeated != expect {
         t.Errorf("Expected %d, got %d", expect, repeated)
     }
-    expect = 0
+    expect = 5
     d = device{frequencies: []int{-6, 3, 8, 5, -6}}
     repeated = d.CheckRepeats()
     if repeated != expect {
         t.Errorf("Expected %d, got %d", expect, repeated)
     }
-    expect = 0
+    expect = 14
     d = device{frequencies: []int{7, 7, -2, -7, -4}}
     repeated = d.CheckRepeats()
     if repeated != expect {
