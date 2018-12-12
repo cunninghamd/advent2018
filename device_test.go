@@ -84,4 +84,15 @@ func TestDevice(t *testing.T) {
     if common != expects {
         t.Errorf("Expected %s, got %s", expects, common)
     }
+    
+    // #1 @ 1,3: 4x4
+    // #2 @ 3,1: 4x4
+    // #3 @ 5,5: 2x2
+    // 4 overlapping claims
+    expect = 4
+    d = device{claims: []string{"#1 @ 1,3: 4x4", "#2 @ 3,1: 4x4", "#3 @ 5,5: 2x2"}}
+    var claims = d.GetOverlappingClaims()
+    if claims != expect {
+        t.Errorf("Expected %d, got %d", expect, claims)
+    }
 }
