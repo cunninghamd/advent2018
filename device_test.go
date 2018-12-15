@@ -2,7 +2,7 @@ package main
 
 import "testing"
 
-func TestDevice(t *testing.T) {
+func TestDeviceDay1(t *testing.T) {
     var d device
     var expect int
     //+1, -2, +3, +1 = 3
@@ -63,6 +63,11 @@ func TestDevice(t *testing.T) {
     if repeated != expect {
         t.Errorf("Expected %d, got %d", expect, repeated)
     }
+}
+
+func TestDeviceDay2(t *testing.T) {
+    var d device
+    var expect int
     
     // abcdef contains no letters that appear exactly two or three times.
     // bababc contains two a and three b, so it counts for both.
@@ -84,6 +89,11 @@ func TestDevice(t *testing.T) {
     if common != expects {
         t.Errorf("Expected %s, got %s", expects, common)
     }
+}
+
+func TestDeviceDay3(t *testing.T) {
+    var d device
+    var expect int
     
     // #1 @ 1,3: 4x4
     // #2 @ 3,1: 4x4
@@ -95,4 +105,11 @@ func TestDevice(t *testing.T) {
     if claims != expect {
         t.Errorf("Expected %d, got %d", expect, claims)
     }
+}
+
+func TestDeviceDay4(t *testing.T) {
+    //var d device
+    //var expect int
+    
+    
 }
