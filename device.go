@@ -377,23 +377,39 @@ func (d *device) GetReactions() int {
     var p [50000]string
     for i := 1; i < length; i++ {
         // fmt.Println("checking: ", i, i - 1)
-        var p1 = d.polymers[i - 1:i]
-        var p2 = d.polymers[i:i + 1]
+        var j = i - 1
+        for {
+            if (j >= 1 && p[j] == "-") {
+                j -= 1
+            } else {
+                break
+            }
+        }
+        var k = i
         
-        if Reactive(d.polymers[i - 1:i], d.polymers[i:i + 1]) {
-            p[i - 1] = "-"
-            p[i] = "-"
+        if (i == 1) {
+            p[j] = d.polymers[j:j + 1]
+        }
+        
+        if (p[k] == "-") {
+            continue
+        }
+        
+        if Reactive(d.polymers[j:j + 1], d.polymers[k:k + 1]) {
+            p[j] = "-"
+            p[k] = "-"
             
             // check surrounding pairs
-            var j = i - 1
-            var k = i
             for {
                 j -= 1
-                if (j < 0) {
-                    break
+                for {
+                    if (p[j] == "-") {
+                        j -= 1
+                    } else {
+                        break
+                    }
                 }
-                k += 2
-                
+                k += 1
                 if (k + 1 > length) {
                     break
                 }
@@ -406,10 +422,7 @@ func (d *device) GetReactions() int {
                 }
             }
         } else {
-            if (i == 1) {
-                p[i - 1] = p1
-            }
-            p[i] = p2
+            p[k] = d.polymers[k:k + 1]
         }
     }
     
@@ -417,12 +430,12 @@ func (d *device) GetReactions() int {
     b.Grow(length)
     for _, polymer := range p {
         // fmt.Println("checking: ", polymer)
-        // if polymer != "-" {
+        if polymer != "-" {
             b.WriteString(polymer)
-        // }
+        }
     }
     
-    fmt.Println(b.String())
+    // fmt.Println(b.String())
     return len(b.String())
 }
 
@@ -437,3 +450,7 @@ func Reactive(p1 string, p2 string) bool {
     }
     return false
 }
+
+
+
+// qya--P------p--k----Y------K----ky---s---w---IK--KK----k------Q---s-------G-----c--iO---yj----k
