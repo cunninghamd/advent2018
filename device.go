@@ -5,6 +5,7 @@ import (
     "fmt"
     "strings"
     "strconv"
+    "sort"
 )
 
 const day1 = "day1"
@@ -40,9 +41,15 @@ type device struct {
     boxIds []string
     claims []string
     unclaimedAreas map[string]int
+    logEntries []string
+    guardMinutes map[string]int
+    guardMinute map[string]int
+    guardTimes map[string]int
 }
 
 func main() {
+    var pInputs puzzleInputs 
+    
     // skip first arg, which is program name
     args := os.Args[1:]
     var d device
@@ -62,9 +69,9 @@ func main() {
             fmt.Println("claims: ", d.GetOverlappingClaims())
             //d.GetUnclaimedAreas()
         case day4:
-            d = device{}
-            fmt.Println("not sure what this will do yet: ")
-            //d.GetDay4()
+            d = device{logEntries: pInputs.Day4()}
+            fmt.Println("the sleepy guard value is: ", d.GetGuardAndMinute())
+            fmt.Println("the guard value sleeping most often is: ", d.GetSleepiestMinute())
     }
 }
 
@@ -254,8 +261,107 @@ func (d *device) GetOverlappingClaims() int {
     return overlaps
 }
 
-func (d *device) GetUnclaimedAreas() {
+func (d *device) GetUnclaimedAreas() string {
     for unclaimedId, _ := range d.unclaimedAreas {
         fmt.Println("unclaimed area: ", unclaimedId)
+    }
+    return ""
+}
+
+func (d *device) GetGuardAndMinute() int {
+    d.guardMinutes = make(map[string]int)
+    d.guardTimes = make(map[string]int)
+    sort.Strings(d.logEntries)
+    var guard string
+    var start int = 0
+    var end int = 0
+    for _, entry := range d.logEntries {
+        if strings.Contains(entry, "begins shift") {
+            guard = d.GetGuard(entry)
+        } else if strings.Contains(entry, "falls asleep") {
+            start = d.GetMinute(entry)
+        } else if strings.Contains(entry, "wakes up") {
+            end = d.GetMinute(entry)
+            
+            // fmt.Println("setting ", guard, start, end)
+            d.SetMinutesFromRange(guard, start, end)
+        }
+    }
+    
+    return d.GetSleepyGuard()
+}
+
+func (d *device) GetSleepyGuard() int {
+    var guard = 0
+    var minute = 0
+    var minutes = 0
+    for guardMinute, totalMinutes := range d.guardMinutes {
+        if totalMinutes > minutes {
+            minutes = totalMinutes
+            guard, _ = strconv.Atoi(guardMinute)
+        }
+    }
+    for guardTime, minuteCount := range d.guardTimes {
+        var parts = strings.Split(guardTime, "-")
+        var checkGuard, _ = strconv.Atoi(parts[0])
+        if (guard == checkGuard) {
+            // fmt.Println("checking ", guardTime, minuteCount, parts[0], parts[1])
+            if minuteCount > minute {
+                minute = minuteCount
+                minutes, _ = strconv.Atoi(parts[1])
+            }
+        }
+    }
+    
+    return guard * minutes
+}
+
+func (d *device) GetSleepiestMinute() int {
+    var guard = 0
+    var minute = 0
+    var m = 0
+    for guardTime, minuteCount := range d.guardTimes {
+        var parts = strings.Split(guardTime, "-")
+        // fmt.Println("checking ", guardTime, minuteCount, parts[0], parts[1])
+        if minuteCount > m {
+            guard, _ = strconv.Atoi(parts[0])
+            minute, _ = strconv.Atoi(parts[1])
+            m = minuteCount
+            // fmt.Println("found", guard, minute)
+        }
+    }
+    
+    return guard * minute
+}
+
+func (d *device) GetGuard(entry string) string {
+    var parts = strings.Split(entry, "#")
+    var guardParts = strings.Split(parts[1], " ")
+    return guardParts[0]
+}
+
+func (d *device) GetMinute(entry string) int {
+    var parts = strings.Split(entry, "]")
+    var timeParts = strings.Split(parts[0], ":")
+    var minute, _ = strconv.Atoi(timeParts[1])
+    return minute
+}
+
+func (d *device) SetMinutesFromRange(guard string, start int, end int) {
+    for i := start; i < end; i++ {
+        _, ok := d.guardMinutes[guard]
+        if !ok {
+            d.guardMinutes[guard] = 1
+        } else {
+            d.guardMinutes[guard] += 1
+        }
+        // fmt.Println("setting guard, start, end, i: ", guard, start, end, i)
+        _, ok = d.guardTimes[guard + "-" + strconv.Itoa(i)]
+        if !ok {
+            d.guardTimes[guard + "-" + strconv.Itoa(i)] = 1
+        } else {
+            d.guardTimes[guard + "-" + strconv.Itoa(i)] += 1
+        }
+        // fmt.Println("guard minute is now: ", guard, i, d.guardTimes[guard + "-" + strconv.Itoa(i)])
     }
 }
