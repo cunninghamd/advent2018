@@ -6,6 +6,7 @@ import (
     "strings"
     "strconv"
     "sort"
+    "time"
 )
 
 const day1 = "day1"
@@ -76,8 +77,14 @@ func main() {
             fmt.Println("the guard value sleeping most often is: ", d.GetSleepiestMinute())
         case day5:
             d = device{polymerLength: 50000, polymers: pInputs.Day5()}
+            start := time.Now()
             fmt.Println("the number of polymers is: ", d.GetReactions(""))
+            elapsed := time.Since(start)
+            fmt.Println("Getting reactions took %s", elapsed)
+            start = time.Now()
             fmt.Println("the number of optimized polymers is: ", d.GetOptimizedReactions())
+            elapsed = time.Since(start)
+            fmt.Println("Getting optimized reactions took %s", elapsed)
     }
 }
 
@@ -438,7 +445,6 @@ func (d *device) GetReactions(excludeUnit string) int {
                 if (strings.ToLower(d.polymers[k:k + 1]) == excludeUnit) {
                     p[k] = "-"
                 }
-                fmt.Println(j)
                 if !Reactive(d.polymers[j:j + 1], d.polymers[k:k + 1]) {
                     break
                 } else {
