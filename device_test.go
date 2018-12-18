@@ -149,5 +149,19 @@ func TestDeviceDay4(t *testing.T) {
     }
 }
 
+// dabAcCaCBAcCcaDA
+// dabA--aCBA--caDA
+// dab----CBA--caDA
 
-
+func TestDeviceDay5(t *testing.T) {
+    var d device
+    var pInputs puzzleInputs
+    var expect int
+    
+    expect = 10
+    d = device{polymers: pInputs.Day5Test()}
+    var reactions = d.GetReactions()
+    if reactions != expect {
+        t.Errorf("Expected %d, got %d", expect, reactions)
+    }
+}

@@ -45,10 +45,11 @@ type device struct {
     guardMinutes map[string]int
     guardMinute map[string]int
     guardTimes map[string]int
+    polymers string
 }
 
 func main() {
-    var pInputs puzzleInputs 
+    var pInputs puzzleInputs
     
     // skip first arg, which is program name
     args := os.Args[1:]
@@ -72,6 +73,9 @@ func main() {
             d = device{logEntries: pInputs.Day4()}
             fmt.Println("the sleepy guard value is: ", d.GetGuardAndMinute())
             fmt.Println("the guard value sleeping most often is: ", d.GetSleepiestMinute())
+        case day5:
+            d = device{polymers: pInputs.Day5()}
+            fmt.Println("the number of polymers is: ", d.GetReactions())
     }
 }
 
@@ -364,4 +368,72 @@ func (d *device) SetMinutesFromRange(guard string, start int, end int) {
         }
         // fmt.Println("guard minute is now: ", guard, i, d.guardTimes[guard + "-" + strconv.Itoa(i)])
     }
+}
+
+func (d *device) GetReactions() int {
+    // start on 2nd char, so we can compare to prev
+    // ignoring the case where the first character reacts, because KWwBbJt... shouldn't have that problem
+    var length = 50000
+    var p [50000]string
+    for i := 1; i < length; i++ {
+        // fmt.Println("checking: ", i, i - 1)
+        var p1 = d.polymers[i - 1:i]
+        var p2 = d.polymers[i:i + 1]
+        
+        if Reactive(d.polymers[i - 1:i], d.polymers[i:i + 1]) {
+            p[i - 1] = "-"
+            p[i] = "-"
+            
+            // check surrounding pairs
+            var j = i - 1
+            var k = i
+            for {
+                j -= 1
+                if (j < 0) {
+                    break
+                }
+                k += 2
+                
+                if (k + 1 > length) {
+                    break
+                }
+                
+                if !Reactive(d.polymers[j:j + 1], d.polymers[k:k + 1]) {
+                    break
+                } else {
+                    p[j] = "-"
+                    p[k] = "-"
+                }
+            }
+        } else {
+            if (i == 1) {
+                p[i - 1] = p1
+            }
+            p[i] = p2
+        }
+    }
+    
+    var b strings.Builder
+    b.Grow(length)
+    for _, polymer := range p {
+        // fmt.Println("checking: ", polymer)
+        // if polymer != "-" {
+            b.WriteString(polymer)
+        // }
+    }
+    
+    fmt.Println(b.String())
+    return len(b.String())
+}
+
+func Reactive(p1 string, p2 string) bool {
+    if strings.ToLower(p1) == strings.ToLower(p2) {
+        if p1 == strings.ToLower(p1) && p2 == strings.ToUpper(p2) {
+            return true
+        }
+        if p1 == strings.ToUpper(p1) && p2 == strings.ToLower(p2) {
+            return true
+        }
+    }
+    return false
 }
