@@ -46,6 +46,7 @@ type device struct {
     guardMinute map[string]int
     guardTimes map[string]int
     polymers string
+    polymerLength int
 }
 
 func main() {
@@ -74,8 +75,9 @@ func main() {
             fmt.Println("the sleepy guard value is: ", d.GetGuardAndMinute())
             fmt.Println("the guard value sleeping most often is: ", d.GetSleepiestMinute())
         case day5:
-            d = device{polymers: pInputs.Day5()}
-            fmt.Println("the number of polymers is: ", d.GetReactions())
+            d = device{polymerLength: 50000, polymers: pInputs.Day5()}
+            fmt.Println("the number of polymers is: ", d.GetReactions(""))
+            fmt.Println("the number of optimized polymers is: ", d.GetOptimizedReactions())
     }
 }
 
@@ -370,12 +372,13 @@ func (d *device) SetMinutesFromRange(guard string, start int, end int) {
     }
 }
 
-func (d *device) GetReactions() int {
+func (d *device) GetReactions(excludeUnit string) int {
     // start on 2nd char, so we can compare to prev
     // ignoring the case where the first character reacts, because KWwBbJt... shouldn't have that problem
-    var length = 50000
     var p [50000]string
-    for i := 1; i < length; i++ {
+    excludeUnit = strings.ToLower(excludeUnit)
+    
+    for i := 1; i < d.polymerLength; i++ {
         // fmt.Println("checking: ", i, i - 1)
         var j = i - 1
         for {
@@ -389,9 +392,17 @@ func (d *device) GetReactions() int {
         
         if (i == 1) {
             p[j] = d.polymers[j:j + 1]
+            if (strings.ToLower(p[j]) == excludeUnit) {
+                p[j] = "-"
+            }
         }
         
         if (p[k] == "-") {
+            continue
+        }
+        
+        if (strings.ToLower(d.polymers[k:k + 1]) == excludeUnit) {
+            p[k] = "-"
             continue
         }
         
@@ -402,18 +413,32 @@ func (d *device) GetReactions() int {
             // check surrounding pairs
             for {
                 j -= 1
+                if (j < 0) {
+                    break
+                }
+
                 for {
                     if (p[j] == "-") {
                         j -= 1
+                        if (j < 0) {
+                            break
+                        }
                     } else {
                         break
                     }
                 }
                 k += 1
-                if (k + 1 > length) {
+                if (k + 1 > d.polymerLength) {
+                    break
+                }
+                if (j < 0) {
                     break
                 }
                 
+                if (strings.ToLower(d.polymers[k:k + 1]) == excludeUnit) {
+                    p[k] = "-"
+                }
+                fmt.Println(j)
                 if !Reactive(d.polymers[j:j + 1], d.polymers[k:k + 1]) {
                     break
                 } else {
@@ -422,12 +447,16 @@ func (d *device) GetReactions() int {
                 }
             }
         } else {
-            p[k] = d.polymers[k:k + 1]
+            if (d.polymers[k:k + 1] == excludeUnit) {
+                p[k] = "-"
+            } else {
+                p[k] = d.polymers[k:k + 1]
+            }
         }
     }
     
     var b strings.Builder
-    b.Grow(length)
+    b.Grow(d.polymerLength)
     for _, polymer := range p {
         // fmt.Println("checking: ", polymer)
         if polymer != "-" {
@@ -451,6 +480,24 @@ func Reactive(p1 string, p2 string) bool {
     return false
 }
 
-
-
-// qya--P------p--k----Y------K----ky---s---w---IK--KK----k------Q---s-------G-----c--iO---yj----k
+func (d *device) GetOptimizedReactions() int {
+    var optimized = make(map[string]int)
+    
+    for i := 0; i < d.polymerLength; i++ {
+        var polymer = strings.ToLower(d.polymers[i:i+1])
+        _, ok := optimized[polymer]
+        if !ok {
+            var optimizedReactions = d.GetReactions(polymer)
+            optimized[polymer] = optimizedReactions
+        }
+    }
+    
+    var optimCheck = 1000000
+    for _, optim := range optimized {
+        if optim < optimCheck {
+            optimCheck = optim
+        }
+    }
+    
+    return optimCheck
+}

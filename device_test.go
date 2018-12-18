@@ -159,9 +159,15 @@ func TestDeviceDay5(t *testing.T) {
     var expect int
     
     expect = 10
-    d = device{polymers: pInputs.Day5Test()}
-    var reactions = d.GetReactions()
+    d = device{polymerLength: 16, polymers: pInputs.Day5Test()}
+    var reactions = d.GetReactions("")
     if reactions != expect {
         t.Errorf("Expected %d, got %d", expect, reactions)
+    }
+    
+    expect = 4
+    var optimized = d.GetOptimizedReactions()
+    if optimized != expect {
+        t.Errorf("Expected %d, got %d", expect, optimized)
     }
 }
